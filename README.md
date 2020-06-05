@@ -37,7 +37,7 @@ To build from scratch, [install the latest Go](https://golang.org/doc/install#in
 To clone the repo
 
 ```
-git clone https://github.com/storj-thirdparty/connector-framework.git
+git clone https://github.com/storj-thirdhttps://github.com/storj-thirdparty/connector-framework/wiki#flow-diagram/connector-framework.git
 ```
 
 Then, build the project using the following:
@@ -54,7 +54,7 @@ go build
 To download the project inside your GOPATH use the following command:
 
 ```
-go get github.com/storj-thridparty/connector-framework
+go get github.com/storj-thirdparty/connector-framework
 ```
 
 
