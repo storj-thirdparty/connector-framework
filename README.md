@@ -125,8 +125,8 @@ The following changes need to be made only in the upload function:
 
 For more information on runtime flags, configuration, testing, and diagrams, check out the [Detail](//github.com/storj-thirdparty/storj-framework/wiki/Home) or jump to:
 
-* [Config Files](//github.com/storj-thirdparty/storj-framework/wiki/#config-files)
-* [Run (long version)](//github.com/storj-thirdparty/storj-framework/wiki/#run)
-* [Testing](//github.com/storj-thirdparty/storj-framework/wiki/#testing)
-* [Flow Diagram](//github.com/storj-thirdparty/storj-framework/wiki/#flow-diagram)
+* [Config Files](//github.com/storj-thirdparty/connector-framework/wiki/#config-files)
+* [Run (long version)](//github.com/storj-thirdparty/connector-framework/wiki/#run)
+* [Testing](//github.com/storj-thirdparty/connector-framework/wiki/#testing)
+* [Flow Diagram](//github.com/storj-thirdparty/connector-framework/wiki/#flow-diagram)
 
