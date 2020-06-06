@@ -1,6 +1,6 @@
 ## connector-framework (uplink v1.0.5)
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/storj-thirdparty/storj-framework)](https://goreportcard.com/report/github.com/storj-thirdparty/connector-framework)
+[![Go Report Card](https://goreportcard.com/badge/github.com/storj-thirdparty/connector-framework)](https://goreportcard.com/report/github.com/storj-thirdparty/connector-framework)
 
 ## Overview
 
