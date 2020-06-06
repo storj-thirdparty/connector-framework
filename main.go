@@ -1,6 +1,7 @@
 package main
 
-import "github.com/storj-thirdparty/connector-framework/cmd" //****Change the connector name here****
+//****Change the connector name here****
+import "github.com/storj-thirdparty/connector-framework/cmd"
 
 func main() {
 	cmd.Execute()
