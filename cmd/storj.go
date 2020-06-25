@@ -169,6 +169,47 @@ func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName
 		log.Fatal("Could not upload data to storj: ", err, abortErr)
 	}
 
+/*	To implement uploading in parts, comment the Copy function block and use the following approcach.
+	This approach creates a section reader for the file handle from the current index
+	to read the data in buffer with specified size and upload the corresponding data in sections.
+
+	var lastIndex int64
+	var numOfBytesRead int
+	var buf = make([]byte, 32768)
+	var err1 error
+
+	// Loop to read the backup file in chunks and append the contents to the upload object.
+	for err1 != io.EOF {
+		sectionReader := io.NewSectionReader(fileReader, lastIndex, int64(cap(buf)))
+		numOfBytesRead, err1 = sectionReader.ReadAt(buf, 0)
+		if numOfBytesRead > 0 {
+			reader := bytes.NewBuffer(buf[0:numOfBytesRead])
+			_, err = io.Copy(upload, reader)
+		}
+		lastIndex = lastIndex + int64(numOfBytesRead)
+	}
+
+*/
+
+/*	In case you have passed a byte array(buffer) to be uploaded,
+	comment the Copy function block and use the following approach.
+	This approach creates a reader for 32KB section starting from the current position,
+	copies the 32KB buffer data and updaes the current position.
+
+	var lastIndex = 0
+	var buf = make([]byte, 32768)
+
+	// Loop to read the backup file in chunks and append the contents to the upload object.
+	for lastIndex < int(len(dataToUpload)) {
+		reader := bytes.NewBuffer(dataToUpload[lastIndex:min(lastIndex+cap(buf), len(dataToUpload))])
+
+		_, err = io.Copy(upload, reader)
+
+		lastIndex = lastIndex + cap(buf)
+	}
+
+*/
+
 	// Commit the upload after copying the complete content of the backup file to upload object.
 	fmt.Println("\nPlease wait while the upload is being committed to Storj.")
 	err = upload.Commit()
@@ -182,3 +223,15 @@ func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName
 	}
 
 }
+
+/*	Uncomment this function if you are passing byte array(buffer) to the UploadData funtion.
+
+	func min(a, b int) int {
+
+	if a < b {
+		return a
+	}
+	return b
+}
+
+*/

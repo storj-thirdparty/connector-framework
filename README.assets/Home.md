@@ -76,15 +76,125 @@ $ ./connector-framework store --share
 The project has been tested on the following operating systems:
 
 ```
-	* Windows
-		* Version: 10 Pro
-		* Processor: Intel(R) Core(TM) i3-5005U CPU @ 2.00GHz 2.00GHz
+* Windows
+	* Version: 10 Pro
+	* Processor: Intel(R) Core(TM) i3-5005U CPU @ 2.00GHz 2.00GHz
 
-	* macOS Catalina
-		* Version: 10.15.4
-		* Processor: 2.5 GHz Dual-Core Intel Core i5
+* macOS Catalina
+	* Version: 10.15.4
+	* Processor: 2.5 GHz Dual-Core Intel Core i5
 
-	* ubuntu
-		* Version: 16.04 LTS
-		* Processor: AMD A6-7310 APU with AMD Radeon R4 Graphics × 4
+* ubuntu
+	* Version: 16.04 LTS
+	* Processor: AMD A6-7310 APU with AMD Radeon R4 Graphics × 4
 ```
+
+
+
+## Functions
+
+#### ConnectToLocalDisk
+
+```
+func ConnectToLocalDisk(configLocalFile ConfigLocalFile) *os.File
+```
+
+ConnectToLocalDisk takes the configuration object as argument and returns the reader of the source file to be uploaded. Function name and implementation can be changed to connect to the required source instance and return the required handle/reader.
+
+#### ConnectToStorj
+
+```
+func ConnectToStorj(fullFileName string, configStorj ConfigStorj, accesskey bool) (*uplink.Access, *uplink.Project)
+```
+
+ConnectToStorj reads Storj configuration from given file and connects to the desired Storj network. It then reads data property from an external file.
+
+#### ShareAccess
+
+```
+func ShareAccess(access *uplink.Access, configStorj ConfigStorj)
+```
+
+ShareAccess generates and prints the shareable serialized access as per the restrictions provided by the user.
+ 
+#### UploadData
+
+```
+func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName string, fileReader *os.File)
+```
+
+UploadData uploads the backup file to storj network. Parameters can be changed as per the requirement. If reader/handle is not passed as an argument to call the function, add the corresponding code snippet to create one. Remember to close the reader after the upload is committed.
+
+
+
+
+## Types
+
+#### ConfigLocalFile
+
+```
+type ConfigLocalFile struct {
+	Path string `json:"path"`
+}
+```
+
+ConfigLocalFile stores the local file path. Change the strcuture name and definition to store the configurations and credentials of whatever the source being used.
+
+#### ConfigStorj
+
+```
+type ConfigStorj struct {
+	APIKey               string `json:"apikey"`
+	Satellite            string `json:"satellite"`
+	Bucket               string `json:"bucket"`
+	UploadPath           string `json:"uploadPath"`
+	EncryptionPassphrase string `json:"encryptionpassphrase"`
+	SerializedAccess     string `json:"serializedAccess"`
+	AllowDownload        string `json:"allowDownload"`
+	AllowUpload          string `json:"allowUpload"`
+	AllowList            string `json:"allowList"`
+	AllowDelete          string `json:"allowDelete"`
+	NotBefore            string `json:"notBefore"`
+	NotAfter             string `json:"notAfter"`
+}
+```
+
+ConfigStorj depicts keys to search for within the stroj_config.json file.
+
+
+## Tutorial
+
+The following cis the tutorial to create your own connector:
+
+#### Source Configuration File
+
+* Change the name of the source config file to the source name and add the required configurations and credentials to it or you can simply create your own *source* configuration file.
+
+#### Source.go
+
+Change the name of the file to *source name* and make the following amendments:
+
+* Change the source configuration structure to store the specified source configurations.
+* Add print statements in the Load<Source>Property function to print the specified configurations.
+* Add the code to connect to source and create an instance, create/fetch back-up data or files, and create a reader to the backup file/data.
+
+#### Store.go
+
+Following changes need to be made in the store.go file:
+
+* Change the corresponding variable and flag names.
+* Process the upload file name to convert to a standard and less complex form, if required.
+* Made changes in the code fragment calling the upload function as per the arguments you wish to pass. Only the *reader* and *file path/name* arguments should be changed.
+
+#### Storj.go
+
+The following changes need to be made only in the upload function:
+
+* Change the arguments in the function definition as per the arguments passed from *store.go*.
+* If reader is not passed as an argument to call the upload function, add the code fragment to create one. Remember to close the reader after the upload is committed.
+* In case you want to implement section uploading, the corresponding code snippet has been provided in a commented block for the same. Uncomment the same and use it for the purpose.
+* For uplaoding a byte array(buffer), a commented block has been provided for that also. Uncomment the same and use it for the purpose.
+
+#### Change the connector name in *root.go* and *main.go*.
+
+#### Create a *go.mod* file for the respective connector.
