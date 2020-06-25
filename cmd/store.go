@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"path"
 
 	"github.com/spf13/cobra"
 )
@@ -52,7 +53,7 @@ func localStore(cmd *cobra.Command, args []string) {
 	// Upload the desired file to desired Storj bucket.
 	//****Change this code fragment by adding a loop if more than one file are to be uploaded
 	//    and also process the file name to be uplaoded to a standard form(if required)****
-	UploadData(project, storjConfig, configLocalFile.Path, reader)
+	UploadData(project, storjConfig, path.Base(configLocalFile.Path), reader)
 	fmt.Printf("\nBack-up complete.\n\n")
 
 	// Create restricted shareable serialized access if share is provided as argument.
