@@ -1,4 +1,4 @@
-## connector-framework (uplink v1.0.5)
+# connector-framework (uplink v1.0.5)
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/253d84109b174697b8453e81d8998073)](https://app.codacy.com/gh/storj-thirdparty/connector-framework?utm_source=github.com&utm_medium=referral&utm_content=storj-thirdparty/connector-framework&utm_campaign=Badge_Grade_Dashboard)
 [![Go Report Card](https://goreportcard.com/badge/github.com/storj-thirdparty/connector-framework)](https://goreportcard.com/report/github.com/storj-thirdparty/connector-framework)
@@ -34,7 +34,7 @@ To build from scratch, [install the latest Go](https://golang.org/doc/install#in
 
 
 
-#### Option #1: clone this repo (most common)
+### Option #1: clone this repo (most common)
 
 To clone the repo
 
@@ -51,7 +51,7 @@ go build
 
 
 
-#### Option #2:  ``go get`` into your gopath
+### Option #2:  ``go get`` into your gopath
 
 To download the project inside your GOPATH use the following command:
 
@@ -67,20 +67,25 @@ go get github.com/storj-thirdparty/connector-framework
 
 Once you have built the project run the following commands as per your requirement:
 
-##### Get help
+### Get help
 
 ```
 $ ./connector-framework --help
 ```
 
-##### Check version
+### Check version
 
 ```
 $ ./connector-framework --version
 ```
 
-##### Create backup from framework and upload to Storj
+### Create backup from framework and upload to Storj
 
 ```
 $ ./connector-framework store
 ```
+
+
+## Flow Diagram
+
+![Flow Diagram](/_images/arch.drawio.png ':include :type=iframe width=100% height=1000px')

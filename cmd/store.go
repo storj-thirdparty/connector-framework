@@ -2,7 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"path"
+	"runtime"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -29,6 +30,8 @@ func init() {
 
 func localStore(cmd *cobra.Command, args []string) {
 
+	start := time.Now()
+
 	// Process arguments from the CLI.
 	localConfigFilePath, _ := cmd.Flags().GetString("local") //****Change the command argument here****
 	fullFileNameStorj, _ := cmd.Flags().GetString("storj")
@@ -53,11 +56,20 @@ func localStore(cmd *cobra.Command, args []string) {
 	// Upload the desired file to desired Storj bucket.
 	//****Change this code fragment by adding a loop if more than one file are to be uploaded
 	//    and also process the file name to be uplaoded to a standard form(if required)****
-	UploadData(project, storjConfig, path.Base(configLocalFile.Path), reader)
+	UploadData(project, storjConfig, configLocalFile.Path, reader)
 	fmt.Printf("\nBack-up complete.\n\n")
 
 	// Create restricted shareable serialized access if share is provided as argument.
 	if useAccessShare {
 		ShareAccess(access, storjConfig)
 	}
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	fmt.Printf("The store command took %s to execute with a total of %d MiB system memory used.\n", time.Since(start), bToMb(m.Sys))
+}
+
+func bToMb(b uint64) uint64 {
+	return b / 1024 / 1024
 }

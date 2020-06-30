@@ -4,6 +4,7 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"time"
 
@@ -35,6 +37,8 @@ type ConfigStorj struct {
 
 // LoadStorjConfiguration reads and parses the JSON file that contain Storj configuration information.
 func LoadStorjConfiguration(fullFileName string) ConfigStorj {
+
+	start := time.Now()
 
 	var configStorj ConfigStorj
 	fileHandle, err := os.Open(filepath.Clean(fullFileName))
@@ -66,12 +70,20 @@ func LoadStorjConfiguration(fullFileName string) ConfigStorj {
 
 	fmt.Println("Upload Path\t: ", configStorj.UploadPath)
 	fmt.Println("Serialized Access Key\t: ", configStorj.SerializedAccess)
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	fmt.Printf("\nLoaded storj configurations in %s with %d MiB system memory used till now.\n", time.Since(start), bToMb(m.Sys))
+
 	return configStorj
 }
 
 // ShareAccess generates and prints the shareable serialized access
 // as per the restrictions provided by the user.
 func ShareAccess(access *uplink.Access, configStorj ConfigStorj) {
+
+	start := time.Now()
 
 	allowDownload, _ := strconv.ParseBool(configStorj.AllowDownload)
 	allowUpload, _ := strconv.ParseBool(configStorj.AllowUpload)
@@ -100,6 +112,12 @@ func ShareAccess(access *uplink.Access, configStorj ConfigStorj) {
 	if err != nil {
 		log.Fatal("Could not serialize shared access: ", err)
 	}
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	fmt.Printf("Serialized access generated in %s with %d MiB system memory used till now.\n", time.Since(start), bToMb(m.Sys))
+
 	fmt.Println("Shareable sererialized access: ", serializedAccess)
 }
 
@@ -108,11 +126,14 @@ func ShareAccess(access *uplink.Access, configStorj ConfigStorj) {
 // It then reads data property from an external file.
 func ConnectToStorj(fullFileName string, configStorj ConfigStorj, accesskey bool) (*uplink.Access, *uplink.Project) {
 
+	start := time.Now()
+
 	var access *uplink.Access
 	var cfg uplink.Config
 
 	// Configure the UserAgent
-	cfg.UserAgent = "InfluxDB"
+	/* For a list of valid User Agents, refer to */
+	cfg.UserAgent = ""
 	ctx := context.Background()
 	var err error
 
@@ -145,23 +166,31 @@ func ConnectToStorj(fullFileName string, configStorj ConfigStorj, accesskey bool
 		log.Fatal(err)
 	}
 
-	fmt.Println("Successfully connected to Storj network.")
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	fmt.Printf("Successfully connected to Storj network in %s with %d MiB system memory used till now.\n", time.Since(start), bToMb(m.Sys))
 	return access, project
 }
 
 // UploadData uploads the backup file to storj network.
 func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName string, fileReader *os.File) {
 
+	start := time.Now()
+
 	ctx := context.Background()
 
 	// Create an upload handle.
-	upload, err := project.UploadObject(ctx, configStorj.Bucket, configStorj.UploadPath+uploadFileName, nil)
+	upload, err := project.UploadObject(ctx, configStorj.Bucket, configStorj.UploadPath+filepath.Base(uploadFileName), nil)
 	if err != nil {
 		log.Fatal("Could not initiate upload : ", err)
 	}
-	fmt.Printf("\nUploading %s to %s.", configStorj.UploadPath+uploadFileName, configStorj.Bucket)
+	fmt.Printf("\nUploading %s to %s.", configStorj.UploadPath+filepath.Base(uploadFileName), configStorj.Bucket)
 
 	// ****Add the code here to create the reader for the file to be uploaded****
+
+	/* To directly copy the complete data to storj network, uncomment this code
+	and remvove/comment the section reader code snippet.
 
 	_, err = io.Copy(upload, fileReader)
 	if err != nil {
@@ -169,46 +198,32 @@ func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName
 		log.Fatal("Could not upload data to storj: ", err, abortErr)
 	}
 
-/*	To implement uploading in parts, comment the Copy function block and use the following approcach.
-	This approach creates a section reader for the file handle from the current index
-	to read the data in buffer with specified size and upload the corresponding data in sections.
+	*/
 
-	var lastIndex int64
-	var numOfBytesRead int
-	var buf = make([]byte, 32768)
-	var err1 error
+	// To implement uploading in parts, use the following approcach.
+	// This approach creates a section reader for the file handle from the current index
+	// to read the data in buffer with specified size and upload the corresponding data in sections.
 
-	// Loop to read the backup file in chunks and append the contents to the upload object.
-	for err1 != io.EOF {
-		sectionReader := io.NewSectionReader(fileReader, lastIndex, int64(cap(buf)))
-		numOfBytesRead, err1 = sectionReader.ReadAt(buf, 0)
-		if numOfBytesRead > 0 {
-			reader := bytes.NewBuffer(buf[0:numOfBytesRead])
+	dataProcessingAndCopy(upload, fileReader)
+
+	/*	In case you have passed a byte array(buffer) to be uploaded,
+		comment the Copy function block and use the following approach.
+		This approach creates a reader for 32KB section starting from the current position,
+		copies the 32KB buffer data and updaes the current position.
+
+		var lastIndex = 0
+		var buf = make([]byte, 32768)
+
+		// Loop to read the backup file in chunks and append the contents to the upload object.
+		for lastIndex < int(len(dataToUpload)) {
+			reader := bytes.NewBuffer(dataToUpload[lastIndex:min(lastIndex+cap(buf), len(dataToUpload))])
+
 			_, err = io.Copy(upload, reader)
+
+			lastIndex = lastIndex + cap(buf)
 		}
-		lastIndex = lastIndex + int64(numOfBytesRead)
-	}
 
-*/
-
-/*	In case you have passed a byte array(buffer) to be uploaded,
-	comment the Copy function block and use the following approach.
-	This approach creates a reader for 32KB section starting from the current position,
-	copies the 32KB buffer data and updaes the current position.
-
-	var lastIndex = 0
-	var buf = make([]byte, 32768)
-
-	// Loop to read the backup file in chunks and append the contents to the upload object.
-	for lastIndex < int(len(dataToUpload)) {
-		reader := bytes.NewBuffer(dataToUpload[lastIndex:min(lastIndex+cap(buf), len(dataToUpload))])
-
-		_, err = io.Copy(upload, reader)
-
-		lastIndex = lastIndex + cap(buf)
-	}
-
-*/
+	*/
 
 	// Commit the upload after copying the complete content of the backup file to upload object.
 	fmt.Println("\nPlease wait while the upload is being committed to Storj.")
@@ -222,6 +237,33 @@ func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName
 		log.Fatal(err)
 	}
 
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	fmt.Printf("\nUploaded data in %s with %d MiB system memory used till now.\n", time.Since(start), bToMb(m.Sys))
+
+}
+
+// dataProcessingAndCopy implements the approcachof uploading data/file in parts.
+// Code to modify the data to be uplaoded can be added inside this function.
+// By default, no modification in the uploading data has been performed.
+func dataProcessingAndCopy(upload *uplink.Upload, fileReader *os.File) {
+
+	var lastIndex int64
+	var numOfBytesRead int
+	var buf = make([]byte, 32768)
+	var err1 error
+
+	// Loop to read the backup file in chunks and append the contents to the upload object.
+	for err1 != io.EOF {
+		sectionReader := io.NewSectionReader(fileReader, lastIndex, int64(cap(buf)))
+		numOfBytesRead, err1 = sectionReader.ReadAt(buf, 0)
+		if numOfBytesRead > 0 {
+			reader := bytes.NewBuffer(buf[0:numOfBytesRead])
+			_, _ = io.Copy(upload, reader)
+		}
+		lastIndex = lastIndex + int64(numOfBytesRead)
+	}
 }
 
 /*	Uncomment this function if you are passing byte array(buffer) to the UploadData funtion.

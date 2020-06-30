@@ -9,6 +9,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
+	"time"
 )
 
 // ConfigLocalFile stores the local file path.
@@ -23,6 +25,8 @@ type ConfigLocalFile struct {
 // and returns it embedded in a configuration object.
 //****Change the function name and add print statements as per the required configurations****
 func LoadLocalProperty(fullFileName string) ConfigLocalFile {
+
+	start := time.Now()
 
 	var configLocalFile ConfigLocalFile
 
@@ -48,6 +52,11 @@ func LoadLocalProperty(fullFileName string) ConfigLocalFile {
 	fmt.Println("\nRead local file configuration from the ", fullFileName, " file")
 	fmt.Println("File Path\t", configLocalFile.Path)
 
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	fmt.Printf("Loaded source configuration in %s with %d MiB system memory used till now.\n", time.Since(start), bToMb(m.Sys))
+
 	return configLocalFile
 }
 
@@ -57,6 +66,7 @@ func LoadLocalProperty(fullFileName string) ConfigLocalFile {
 //     and return the file(s) or reader of the file****
 func ConnectToLocalDisk(configLocalFile ConfigLocalFile) *os.File {
 
+	start := time.Now()
 	//****Code to connect to source and create a source instance(as per requirement)****
 
 	//****Code fetch backup data/file(s)****
@@ -66,6 +76,11 @@ func ConnectToLocalDisk(configLocalFile ConfigLocalFile) *os.File {
 	if err != nil {
 		log.Fatal()
 	}
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	fmt.Printf("\nConnected to source in %s with  %d MiB system memory used till now.\n", time.Since(start), bToMb(m.Sys))
 
 	return reader
 }

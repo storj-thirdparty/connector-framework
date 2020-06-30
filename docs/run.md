@@ -1,4 +1,4 @@
-## <b>Run</b>
+# Run
 
 > Back-up is uploaded by streaming to the Storj network.
 
@@ -9,31 +9,31 @@ The following flags can be used with the `store` command:
 
 Once you have built the project you can run the following:
 
-##### Get help
+## Get help
 
 ```
 $ ./connector-framework --help
 ```
 
-##### Check version
+## Check version
 
 ```
 $ ./connector-framework --version
 ```
 
-##### Upload back-up data to Storj
+## Upload back-up data to Storj
 
 ```
 $ ./connector-framework store --local <path_to_local_config_file> --storj <path_to_storj_config_file>
 ```
 
-##### Upload back-up data to Storj bucket using Access Key
+## Upload back-up data to Storj bucket using Access Key
 
 ```
 $ ./connector-framework store --accesskey
 ```
 
-##### Upload back-up data to Storj and generate a Shareable Access Key based on restrictions in `storj_config.json`
+## Upload back-up data to Storj and generate a Shareable Access Key based on restrictions in `storj_config.json`
 
 ```
 $ ./connector-framework store --share
