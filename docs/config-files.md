@@ -1,14 +1,14 @@
-## <b>Config Files</b>
+# <b>Config Files</b>
 
 > There are two config files that contain Storj network and framework connection information. The tool is designed so you can specify a config file as part of your tooling/workflow.
 
-##### `local.json`
+## `local.json`
 
 Inside the `./config` directory there is a `local.json` file, with following information about your framework(local file in this case) instance:
 
 * `path`- Path to local file
 
-##### `storj_config.json`
+## `storj_config.json`
 
 Inside the `./config` directory a `storj_config.json` file, with Storj network configuration information in JSON format:
 
