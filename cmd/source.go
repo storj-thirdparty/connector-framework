@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"time"
 )
 
 // ConfigLocalFile stores the local file path.
@@ -26,7 +25,12 @@ type ConfigLocalFile struct {
 //****Change the function name and add print statements as per the required configurations****
 func LoadLocalProperty(fullFileName string) ConfigLocalFile {
 
-	start := time.Now()
+	if useDebug {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.Printf("LoadLacalProperty\tStart\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+	}
 
 	var configLocalFile ConfigLocalFile
 
@@ -49,13 +53,15 @@ func LoadLocalProperty(fullFileName string) ConfigLocalFile {
 	}
 
 	//****Display the parsed configuration properties****
-	fmt.Println("\nRead local file configuration from the ", fullFileName, " file")
-	fmt.Println("File Path\t", configLocalFile.Path)
+	fmt.Println("Read local file configuration from the", fullFileName, "file.")
+	fmt.Println("File Path\t: ", configLocalFile.Path)
 
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-
-	fmt.Printf("Loaded source configuration in %s with %d MiB system memory used till now.\n", time.Since(start), bToMb(m.Sys))
+	if useDebug {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.Printf("LoadLacalProperty\tEnd\tCurrent RAM usage: %d MiB\n\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+	}
 
 	return configLocalFile
 }
@@ -66,7 +72,12 @@ func LoadLocalProperty(fullFileName string) ConfigLocalFile {
 //     and return the file(s) or reader of the file****
 func ConnectToLocalDisk(configLocalFile ConfigLocalFile) *os.File {
 
-	start := time.Now()
+	if useDebug {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.Printf("ConnectToLocalDisk\tStart\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+	}
 	//****Code to connect to source and create a source instance(as per requirement)****
 
 	//****Code fetch backup data/file(s)****
@@ -77,10 +88,12 @@ func ConnectToLocalDisk(configLocalFile ConfigLocalFile) *os.File {
 		log.Fatal()
 	}
 
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-
-	fmt.Printf("\nConnected to source in %s with  %d MiB system memory used till now.\n", time.Since(start), bToMb(m.Sys))
+	if useDebug {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.Printf("ConnectToLocalDisk\tEnd\tCurrent RAM usage: %d MiB\n\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+	}
 
 	return reader
 }

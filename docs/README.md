@@ -18,9 +18,7 @@ Available Commands:
   version     Prints the version of the tool
 ```
 
-
 `store` - Connect to the specified(default: `local.json`). Back-up data are generated using tooling provided by framework then uploaded to the Storj network. Connect to a Storj v3 network using the access specified in the Storj configuration file (default: `storj_config.json`).
-
 
 Sample configuration files are provided in the `./config` folder.
 

@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"runtime"
 	"time"
 
+	//	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -24,19 +26,33 @@ func init() {
 	var defaultStorjFile string
 	storeCmd.Flags().BoolP("accesskey", "a", false, "Connect to storj using access key(default connection method is by using API Key).")
 	storeCmd.Flags().BoolP("share", "s", false, "For generating share access of the uploaded backup file.")
+	storeCmd.Flags().BoolP("debug", "d", false, "For code instrumentation and profiling.")
 	storeCmd.Flags().StringVarP(&defaultLocalFile, "local", "l", "././config/local.json", "full filepath contaning local file path.") //****Change the flag name and its description****
 	storeCmd.Flags().StringVarP(&defaultStorjFile, "storj", "u", "././config/storj_config.json", "full filepath contaning Storj V3 configuration.")
 }
 
-func localStore(cmd *cobra.Command, args []string) {
+var useDebug bool
+var start time.Time
 
-	start := time.Now()
+/*func createLog() *logrus.Logger {
+	return logrus.New()
+}*/
+
+func localStore(cmd *cobra.Command, args []string) {
 
 	// Process arguments from the CLI.
 	localConfigFilePath, _ := cmd.Flags().GetString("local") //****Change the command argument here****
 	fullFileNameStorj, _ := cmd.Flags().GetString("storj")
 	useAccessKey, _ := cmd.Flags().GetBool("accesskey")
 	useAccessShare, _ := cmd.Flags().GetBool("share")
+	useDebug, _ = cmd.Flags().GetBool("debug")
+
+	if useDebug {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.Printf("localStore\tStart\tCurrent RAM usage: %d MiB\n\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+	}
 
 	// Read local file configuration from an external file and create a configuration object.
 	//****Change the statement as per the `source` code function****
@@ -52,22 +68,28 @@ func localStore(cmd *cobra.Command, args []string) {
 	//****This will store the file(s)/reader to be uplaoded****
 	reader := ConnectToLocalDisk(configLocalFile)
 
-	fmt.Printf("\nInitiating back-up.\n")
+	fmt.Printf("Initiating back-up.\n")
 	// Upload the desired file to desired Storj bucket.
 	//****Change this code fragment by adding a loop if more than one file are to be uploaded
 	//    and also process the file name to be uplaoded to a standard form(if required)****
 	UploadData(project, storjConfig, configLocalFile.Path, reader)
-	fmt.Printf("\nBack-up complete.\n\n")
+	fmt.Printf("Back-up complete.\n\n")
 
 	// Create restricted shareable serialized access if share is provided as argument.
 	if useAccessShare {
 		ShareAccess(access, storjConfig)
 	}
 
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
+	if useDebug {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.Printf("localStore\tEnd\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
 
-	fmt.Printf("The store command took %s to execute with a total of %d MiB system memory used.\n", time.Since(start), bToMb(m.Sys))
+		runtime.GC()
+		runtime.ReadMemStats(&m)
+		log.Printf("localStore\tEnd\tCurrent RAM usage(after garbage collection): %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+	}
 }
 
 func bToMb(b uint64) uint64 {

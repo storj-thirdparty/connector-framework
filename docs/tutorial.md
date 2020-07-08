@@ -66,7 +66,7 @@ fileReader, err := os.Open(filepath.Clean(filePath))
 		log.Fatal(err)
 	}
 ```
-Here, filePath is the complete path of the file that needs to be uplaoded.
+Here, filePath is the complete path of the file that needs to be uploaded.
 
 * In case you want to implement section uploading, use the following code fragment. The corresponding code snippet has been used in the sample connector code provided.
 
@@ -91,9 +91,9 @@ func dataProcessingAndCopy(upload *uplink.Upload, fileReader *os.File) {
 }
 ```
 
-Call the above function insdie the *UplaodData* funciton inside *storj.go* after creating the *uplink.Uplaod* handle object. This approach creates a section reader for the file handle from the current index to read the data in buffer with specified size and upload the corresponding data in sections.
+Call the above function inside the *UploadData* funciton inside *storj.go* after creating the *uplink.Upload* handle object. This approach creates a section reader for the file handle from the current index to read the data in buffer with specified size and upload the corresponding data in sections.
 
-* For uplaoding a byte array(buffer), use the following code fragment. A commented block has also been provided. Uncomment the same and use it for the purpose.
+* For uploading a byte array(buffer), use the following code fragment. A commented block has also been provided. Uncomment the same and use it for the purpose.
 
 ```
 var lastIndex = 0

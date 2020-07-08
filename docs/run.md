@@ -6,7 +6,7 @@ The following flags can be used with the `store` command:
 
 * `accesskey` - Connects to the Storj network using a serialized access key instead of an API key, satellite url and encryption passphrase.
 * `shared` - Generates a restricted shareable serialized access with the restrictions specified in the Storj configuration file.
-
+* `debug` - Prints the execution time, memory used by each function and collects the garbage memory at the end of the command execution.
 Once you have built the project you can run the following:
 
 ## Get help
@@ -37,4 +37,10 @@ $ ./connector-framework store --accesskey
 
 ```
 $ ./connector-framework store --share
+```
+
+## Upload back-up data to storj in debug mode
+
+```
+$ ./connector-framework store --debug
 ```

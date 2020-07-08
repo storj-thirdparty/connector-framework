@@ -2,6 +2,8 @@
 
 ![](https://github.com/storj-thirdparty/storj-framework/blob/master/README.assets/arch.drawio.png)
 
+
+
 ## Config Files
 
 There are two config files that contain Storj network and framework connection information. The tool is designed so you can specify a config file as part of your tooling/workflow.
@@ -29,6 +31,8 @@ Inside the `./config` directory a `storj_config.json` file, with Storj network c
 * `notBefore` - Set time that is always before *notAfter*
 * `notAfter` - Set time that is always after *notBefore*
 
+
+
 ## Run
 
 Back-up is uploaded by streaming to the Storj network.
@@ -37,6 +41,7 @@ The following flags can be used with the `store` command:
 
 * `accesskey` - Connects to the Storj network using a serialized access key instead of an API key, satellite url and encryption passphrase.
 * `shared` - Generates a restricted shareable serialized access with the restrictions specified in the Storj configuration file.
+* `debug` - Prints the execution time, memory used by each function and collects the garbage memory at the end of the command execution.
 
 Once you have built the project you can run the following:
 
@@ -68,6 +73,12 @@ $ ./connector-framework store --accesskey
 
 ```
 $ ./connector-framework store --share
+```
+
+##### Upload back-up data to storj in debug mode
+
+```
+$ ./connector-framework store --debug
 ```
 
 
