@@ -1,6 +1,6 @@
-## <b>Functions</b>
+## Functions
 
-#### ConnectToLocalDisk
+### ConnectToLocalDisk
 
 ```
 func ConnectToLocalDisk(configLocalFile ConfigLocalFile) *os.File
@@ -8,7 +8,7 @@ func ConnectToLocalDisk(configLocalFile ConfigLocalFile) *os.File
 
 ConnectToLocalDisk takes the configuration object as argument and returns the reader of the source file to be uploaded. Function name and implementation can be changed to connect to the required source instance and return the required handle/reader.
 
-#### ConnectToStorj
+### ConnectToStorj
 
 ```
 func ConnectToStorj(fullFileName string, configStorj ConfigStorj, accesskey bool) (*uplink.Access, *uplink.Project)
@@ -16,7 +16,7 @@ func ConnectToStorj(fullFileName string, configStorj ConfigStorj, accesskey bool
 
 ConnectToStorj reads Storj configuration from given file and connects to the desired Storj network. It then reads data property from an external file.
 
-#### ShareAccess
+### ShareAccess
 
 ```
 func ShareAccess(access *uplink.Access, configStorj ConfigStorj)
@@ -24,7 +24,7 @@ func ShareAccess(access *uplink.Access, configStorj ConfigStorj)
 
 ShareAccess generates and prints the shareable serialized access as per the restrictions provided by the user.
  
-#### UploadData
+### UploadData
 
 ```
 func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName string, fileReader *os.File)
@@ -37,7 +37,7 @@ UploadData uploads the backup file to storj network. Parameters can be changed a
 
 ## Types
 
-#### ConfigLocalFile
+### ConfigLocalFile
 
 ```
 type ConfigLocalFile struct {
@@ -47,7 +47,7 @@ type ConfigLocalFile struct {
 
 ConfigLocalFile stores the local file path. Change the strcuture name and definition to store the configurations and credentials of whatever the source being used.
 
-#### ConfigStorj
+### ConfigStorj
 
 ```
 type ConfigStorj struct {

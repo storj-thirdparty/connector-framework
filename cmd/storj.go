@@ -4,6 +4,7 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"time"
 
@@ -36,6 +38,13 @@ type ConfigStorj struct {
 // LoadStorjConfiguration reads and parses the JSON file that contain Storj configuration information.
 func LoadStorjConfiguration(fullFileName string) ConfigStorj {
 
+	if useDebug {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.Printf("LoadStorjConfiguration\tStart\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+	}
+
 	var configStorj ConfigStorj
 	fileHandle, err := os.Open(filepath.Clean(fullFileName))
 	if err != nil {
@@ -53,8 +62,8 @@ func LoadStorjConfiguration(fullFileName string) ConfigStorj {
 	}
 
 	// Display storj configuration read from file.
-	fmt.Println("\nRead Storj configuration from the ", fullFileName, " file")
-	fmt.Println("\nAPI Key\t\t: ", configStorj.APIKey)
+	fmt.Println("Read Storj configuration from the", fullFileName, "file.")
+	fmt.Println("API Key\t\t: ", configStorj.APIKey)
 	fmt.Println("Satellite	: ", configStorj.Satellite)
 	fmt.Println("Bucket		: ", configStorj.Bucket)
 
@@ -66,12 +75,30 @@ func LoadStorjConfiguration(fullFileName string) ConfigStorj {
 
 	fmt.Println("Upload Path\t: ", configStorj.UploadPath)
 	fmt.Println("Serialized Access Key\t: ", configStorj.SerializedAccess)
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	if useDebug {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.Printf("LoadStorjConfiguration\tEnd\tCurrent RAM usage: %d MiB\n\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+	}
+
 	return configStorj
 }
 
 // ShareAccess generates and prints the shareable serialized access
 // as per the restrictions provided by the user.
 func ShareAccess(access *uplink.Access, configStorj ConfigStorj) {
+
+	if useDebug {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.Printf("ShareAccess\tStart\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+	}
 
 	allowDownload, _ := strconv.ParseBool(configStorj.AllowDownload)
 	allowUpload, _ := strconv.ParseBool(configStorj.AllowUpload)
@@ -100,7 +127,18 @@ func ShareAccess(access *uplink.Access, configStorj ConfigStorj) {
 	if err != nil {
 		log.Fatal("Could not serialize shared access: ", err)
 	}
-	fmt.Println("Shareable sererialized access: ", serializedAccess)
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	if useDebug {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.Printf("ShareAccess\tEnd\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+	}
+
+	fmt.Println("Shareable serialized access: ", serializedAccess)
 }
 
 // ConnectToStorj reads Storj configuration from given file
@@ -108,23 +146,31 @@ func ShareAccess(access *uplink.Access, configStorj ConfigStorj) {
 // It then reads data property from an external file.
 func ConnectToStorj(fullFileName string, configStorj ConfigStorj, accesskey bool) (*uplink.Access, *uplink.Project) {
 
+	if useDebug {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.Printf("ConnectToStorj\tStart\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+	}
+
 	var access *uplink.Access
 	var cfg uplink.Config
 
 	// Configure the UserAgent
-	cfg.UserAgent = "InfluxDB"
+	/* For a list of valid User Agents, refer to */
+	cfg.UserAgent = ""
 	ctx := context.Background()
 	var err error
 
 	if accesskey {
-		fmt.Println("\nConnecting to Storj network using Serialized access.")
+		fmt.Println("Connecting to Storj network using Serialized access.")
 		// Generate access handle using serialized access.
 		access, err = uplink.ParseAccess(configStorj.SerializedAccess)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else {
-		fmt.Println("\nConnecting to Storj network.")
+		fmt.Println("Connecting to Storj network.")
 		// Generate access handle using API key, satellite url and encryption passphrase.
 		access, err = cfg.RequestAccessWithPassphrase(ctx, configStorj.Satellite, configStorj.APIKey, configStorj.EncryptionPassphrase)
 		if err != nil {
@@ -145,23 +191,43 @@ func ConnectToStorj(fullFileName string, configStorj ConfigStorj, accesskey bool
 		log.Fatal(err)
 	}
 
-	fmt.Println("Successfully connected to Storj network.")
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	if useDebug {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.Printf("ConnectToStorj\tEnd\tCurrent RAM usage: %d MiB\n\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+	}
+
 	return access, project
 }
 
 // UploadData uploads the backup file to storj network.
 func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName string, fileReader *os.File) {
 
+	if useDebug {
+		start = time.Now()
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.Printf("UploadData\tStart\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+	}
+
 	ctx := context.Background()
 
 	// Create an upload handle.
-	upload, err := project.UploadObject(ctx, configStorj.Bucket, configStorj.UploadPath+uploadFileName, nil)
+	upload, err := project.UploadObject(ctx, configStorj.Bucket, configStorj.UploadPath+filepath.Base(uploadFileName), nil)
 	if err != nil {
 		log.Fatal("Could not initiate upload : ", err)
 	}
-	fmt.Printf("\nUploading %s to %s.", configStorj.UploadPath+uploadFileName, configStorj.Bucket)
+	fmt.Printf("Uploading %s to %s.\n", configStorj.UploadPath+filepath.Base(uploadFileName), configStorj.Bucket)
 
 	// ****Add the code here to create the reader for the file to be uploaded****
+
+	/* To directly copy the complete data to storj network, uncomment this code
+	and remvove/comment the section reader code snippet.
 
 	_, err = io.Copy(upload, fileReader)
 	if err != nil {
@@ -169,9 +235,62 @@ func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName
 		log.Fatal("Could not upload data to storj: ", err, abortErr)
 	}
 
-/*	To implement uploading in parts, comment the Copy function block and use the following approcach.
-	This approach creates a section reader for the file handle from the current index
-	to read the data in buffer with specified size and upload the corresponding data in sections.
+	*/
+
+	// To implement uploading in parts, use the following approcach.
+	// This approach creates a section reader for the file handle from the current index
+	// to read the data in buffer with specified size and upload the corresponding data in sections.
+
+	dataProcessingAndCopy(upload, fileReader)
+
+	/*	In case you have passed a byte array(buffer) to be uploaded,
+		comment the Copy function block and use the following approach.
+		This approach creates a reader for 32KB section starting from the current position,
+		copies the 32KB buffer data and updaes the current position.
+
+		var lastIndex = 0
+		var buf = make([]byte, 32768)
+
+		// Loop to read the backup file in chunks and append the contents to the upload object.
+		for lastIndex < int(len(dataToUpload)) {
+			reader := bytes.NewBuffer(dataToUpload[lastIndex:min(lastIndex+cap(buf), len(dataToUpload))])
+
+			_, err = io.Copy(upload, reader)
+
+			lastIndex = lastIndex + cap(buf)
+		}
+
+	*/
+
+	// Commit the upload after copying the complete content of the backup file to upload object.
+	fmt.Println("Please wait while the upload is being committed to Storj.")
+	err = upload.Commit()
+	if err != nil {
+		log.Fatal("Could not commit object upload : ", err)
+	}
+
+	// Close file handle after reading from it.
+	if err = fileReader.Close(); err != nil {
+		log.Fatal(err)
+	}
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	if useDebug {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.Printf("UploadData\tEnd\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+		fmt.Printf("File uploaded in %s with %d MiB system memory used.\n", time.Since(start), bToMb(m.Sys))
+	}
+
+}
+
+// dataProcessingAndCopy implements the approcachof uploading data/file in parts.
+// Code to modify the data to be uploaded can be added inside this function.
+// By default, no modification in the uploading data has been performed.
+func dataProcessingAndCopy(upload *uplink.Upload, fileReader *os.File) {
 
 	var lastIndex int64
 	var numOfBytesRead int
@@ -184,44 +303,10 @@ func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName
 		numOfBytesRead, err1 = sectionReader.ReadAt(buf, 0)
 		if numOfBytesRead > 0 {
 			reader := bytes.NewBuffer(buf[0:numOfBytesRead])
-			_, err = io.Copy(upload, reader)
+			_, _ = io.Copy(upload, reader)
 		}
 		lastIndex = lastIndex + int64(numOfBytesRead)
 	}
-
-*/
-
-/*	In case you have passed a byte array(buffer) to be uploaded,
-	comment the Copy function block and use the following approach.
-	This approach creates a reader for 32KB section starting from the current position,
-	copies the 32KB buffer data and updaes the current position.
-
-	var lastIndex = 0
-	var buf = make([]byte, 32768)
-
-	// Loop to read the backup file in chunks and append the contents to the upload object.
-	for lastIndex < int(len(dataToUpload)) {
-		reader := bytes.NewBuffer(dataToUpload[lastIndex:min(lastIndex+cap(buf), len(dataToUpload))])
-
-		_, err = io.Copy(upload, reader)
-
-		lastIndex = lastIndex + cap(buf)
-	}
-
-*/
-
-	// Commit the upload after copying the complete content of the backup file to upload object.
-	fmt.Println("\nPlease wait while the upload is being committed to Storj.")
-	err = upload.Commit()
-	if err != nil {
-		log.Fatal("Could not commit object upload : ", err)
-	}
-
-	// Close file handle after reading from it.
-	if err = fileReader.Close(); err != nil {
-		log.Fatal(err)
-	}
-
 }
 
 /*	Uncomment this function if you are passing byte array(buffer) to the UploadData funtion.

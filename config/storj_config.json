@@ -1,14 +1,12 @@
-{ 
-    "apikey":     "change-me-to-storj-api-key",
+"apikey":     "change-me-to-storj-api-key",
     "satellite":  "change-me-to-storj-satellite-address",
     "bucket":     "change-me-to-desired-storj-bucket",
     "uploadPath": "change-me-to-desired-uploadPath",
     "encryptionpassphrase": "change-me-to-encryptionpassphrase",
     "serializedAccess": "change-me-to-serialized-access",
-    "allowDownload": "true/false-to-allow/restrict-download",
-    "allowUpload": "true/false-to-allow/restrict-upload",
-    "allowList": "true/false-to-allow/restrict-listing",
-    "allowDelete": "true/false-to-allow/restrict-delete",
+    "allowDownload": "true",
+    "allowUpload": "false",
+    "allowList": "true",
+    "allowDelete": "true",
 	"notBefore": "0",
 	"notAfter": "0"
-}	
