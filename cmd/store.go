@@ -6,7 +6,6 @@ import (
 	"runtime"
 	"time"
 
-	//	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
