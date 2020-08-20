@@ -2,8 +2,6 @@
 
 ![](https://github.com/storj-thirdparty/storj-framework/blob/master/README.assets/arch.drawio.png)
 
-
-
 ## Config Files
 
 There are two config files that contain Storj network and framework connection information. The tool is designed so you can specify a config file as part of your tooling/workflow.
@@ -22,7 +20,7 @@ Inside the `./config` directory a `storj_config.json` file, with Storj network c
 * `satelliteURL` - Storj Satellite URL(mandatory)
 * `encryptionPassphrase` - Storj Encryption Passphrase(mandatory)
 * `bucketName` - Name of the bucket to upload data into(mandatory)
-* `uploadPath` - Path on Storj Bucket to store data (optional) or "/" (mandatory)
+* `uploadPath` - Path on Storj Bucket to store data (optional) or "" or "/". (mandatory)
 * `serializedAccess` - Serialized access shared while uploading data used to access bucket without API Key (mandatory while using *accesskey* flag)
 * `allowDownload` - Set *true* to create serialized access with restricted download (mandatory while using *share* flag)
 * `allowUpload` - Set *true* to create serialized access with restricted upload (mandatory while using *share* flag)
@@ -31,9 +29,7 @@ Inside the `./config` directory a `storj_config.json` file, with Storj network c
 * `notBefore` - Set time that is always before *notAfter*
 * `notAfter` - Set time that is always after *notBefore*
 
-
-
-## Run
+# Run
 
 Back-up is uploaded by streaming to the Storj network.
 
@@ -81,7 +77,6 @@ $ ./connector-framework store --share
 $ ./connector-framework store --debug
 ```
 
-
 ## Testing
 
 The project has been tested on the following operating systems:
@@ -99,8 +94,6 @@ The project has been tested on the following operating systems:
 	* Version: 16.04 LTS
 	* Processor: AMD A6-7310 APU with AMD Radeon R4 Graphics × 4
 ```
-
-
 
 ## Functions
 
@@ -136,9 +129,6 @@ func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName
 
 UploadData uploads the backup file to storj network. Parameters can be changed as per the requirement. If reader/handle is not passed as an argument to call the function, add the corresponding code snippet to create one. Remember to close the reader after the upload is committed.
 
-
-
-
 ## Types
 
 #### ConfigLocalFile
@@ -171,7 +161,6 @@ type ConfigStorj struct {
 ```
 
 ConfigStorj depicts keys to search for within the stroj_config.json file.
-
 
 ## Tutorial
 
