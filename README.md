@@ -18,21 +18,16 @@ Available Commands:
   version     Prints the version of the tool
 ```
 
-
 `store` - Connect to the specified(default: `local.json`). Back-up data are generated using tooling provided by framework then uploaded to the Storj network. Connect to a Storj v3 network using the access specified in the Storj configuration file (default: `storj_config.json`).
 
 
 Sample configuration files are provided in the `./config` folder.
-
-
 
 ## Requirements and Install
 
 To build from scratch, [install the latest Go](https://golang.org/doc/install#install).
 
 > Note: Ensure go modules are enabled (GO111MODULE=on)
-
-
 
 #### Option #1: clone this repo (most common)
 
@@ -49,8 +44,6 @@ cd connector-framework
 go build
 ```
 
-
-
 #### Option #2:  ``go get`` into your gopath
 
 To download the project inside your GOPATH use the following command:
@@ -59,9 +52,7 @@ To download the project inside your GOPATH use the following command:
 go get github.com/storj-thirdparty/connector-framework
 ```
 
-
 > Note: For reference, connector-local to backup a local file is made and following commands can be used to test the same.
-
 
 ## Run (short version)
 
@@ -84,8 +75,6 @@ $ ./connector-framework --version
 ```
 $ ./connector-framework store
 ```
-
-
 
 ## Documentation
 
