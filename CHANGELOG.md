@@ -1,5 +1,9 @@
 # connector-framework Changelog
 
+## [1.0.5] - 26-08-2020
+### Changelog:
+* Added CI-CD pipeline.
+
 ## [1.0.5] - 19-08-2020
 * Resolved uplaod path issue.
 
