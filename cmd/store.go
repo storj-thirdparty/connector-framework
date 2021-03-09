@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
-	"runtime"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -14,7 +12,7 @@ var storeCmd = &cobra.Command{
 	Use:   "store",
 	Short: "Command to upload data to storjV3 network.",
 	Long:  `Command to connect and uplaod local file to given Storj Bucket.`, // ****Change the description here****
-	Run:   localStore,                                                        //****Change the name by replacing `local` with the name of the source being used****
+	Run:   withMetrics(localStore),                                           //****Change the name by replacing `local` with the name of the source being used****
 }
 
 func init() {
@@ -44,14 +42,7 @@ func localStore(cmd *cobra.Command, args []string) {
 	fullFileNameStorj, _ := cmd.Flags().GetString("storj")
 	useAccessKey, _ := cmd.Flags().GetBool("accesskey")
 	useAccessShare, _ := cmd.Flags().GetBool("share")
-	useDebug, _ = cmd.Flags().GetBool("debug")
-
-	if useDebug {
-		var m runtime.MemStats
-		runtime.ReadMemStats(&m)
-		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-		log.Printf("localStore\tStart\tCurrent RAM usage: %d MiB\n\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
-	}
+	//useDebug, _ = cmd.Flags().GetBool("debug")
 
 	// Read local file configuration from an external file and create a configuration object.
 	//****Change the statement as per the `source` code function****
@@ -77,17 +68,6 @@ func localStore(cmd *cobra.Command, args []string) {
 	// Create restricted shareable serialized access if share is provided as argument.
 	if useAccessShare {
 		ShareAccess(access, storjConfig)
-	}
-
-	if useDebug {
-		var m runtime.MemStats
-		runtime.ReadMemStats(&m)
-		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-		log.Printf("localStore\tEnd\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
-
-		runtime.GC()
-		runtime.ReadMemStats(&m)
-		log.Printf("localStore\tEnd\tCurrent RAM usage(after garbage collection): %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
 	}
 }
 

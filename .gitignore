@@ -1,0 +1,4 @@
+.idea
+*.exe
+/config/local_v1.json
+/config/storj_config_v1.json
