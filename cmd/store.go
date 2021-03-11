@@ -12,7 +12,7 @@ var storeCmd = &cobra.Command{
 	Use:   "store",
 	Short: "Command to upload data to storjV3 network.",
 	Long:  `Command to connect and uplaod local file to given Storj Bucket.`, // ****Change the description here****
-	Run:   withMetrics(localStore),                                           //****Change the name by replacing `local` with the name of the source being used****
+	Run:   localStore,                                                        //****Change the name by replacing `local` with the name of the source being used****
 }
 
 func init() {
@@ -29,11 +29,8 @@ func init() {
 }
 
 var useDebug bool
+var collectedMetrics []*Metric
 var start time.Time
-
-/*func createLog() *logrus.Logger {
-	return logrus.New()
-}*/
 
 func localStore(cmd *cobra.Command, args []string) {
 
@@ -42,7 +39,7 @@ func localStore(cmd *cobra.Command, args []string) {
 	fullFileNameStorj, _ := cmd.Flags().GetString("storj")
 	useAccessKey, _ := cmd.Flags().GetBool("accesskey")
 	useAccessShare, _ := cmd.Flags().GetBool("share")
-	//useDebug, _ = cmd.Flags().GetBool("debug")
+	useDebug, _ = cmd.Flags().GetBool("debug")
 
 	// Read local file configuration from an external file and create a configuration object.
 	//****Change the statement as per the `source` code function****

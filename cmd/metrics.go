@@ -1,33 +1,24 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"log"
 	"runtime"
+	"time"
 )
 
-type meteredCommand func(cmd *cobra.Command, args []string)
+type Metric struct {
+	function    string
+	startMemory *runtime.MemStats
+	endMemory   *runtime.MemStats
+	startTime   int64
+	endTime     int64
+}
 
-func withMetrics(f meteredCommand) meteredCommand {
+func (m *Metric) start() {
+	m.startTime = time.Now().Unix()
+	runtime.ReadMemStats(m.startMemory)
+}
 
-	return func(cmd *cobra.Command, args []string) {
-		storeMetrics, _ := cmd.Flags().GetBool("debug")
-		if storeMetrics {
-			var m runtime.MemStats
-			runtime.ReadMemStats(&m)
-			log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-			log.Printf("localStore\tStart\tCurrent RAM usage: %d MiB\n\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
-		}
-		f(cmd, args)
-		if storeMetrics {
-			var m runtime.MemStats
-			runtime.ReadMemStats(&m)
-			log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-			log.Printf("localStore\tEnd\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
-
-			runtime.GC()
-			runtime.ReadMemStats(&m)
-			log.Printf("localStore\tEnd\tCurrent RAM usage(after garbage collection): %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
-		}
-	}
+func (m *Metric) end() {
+	m.endTime = time.Now().Unix()
+	runtime.ReadMemStats(m.endMemory)
 }

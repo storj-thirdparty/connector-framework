@@ -12,7 +12,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strconv"
 	"time"
 
@@ -38,11 +37,14 @@ type ConfigStorj struct {
 // LoadStorjConfiguration reads and parses the JSON file that contain Storj configuration information.
 func LoadStorjConfiguration(fullFileName string) ConfigStorj {
 
+	var metric *Metric
 	if useDebug {
-		var m runtime.MemStats
-		runtime.ReadMemStats(&m)
-		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-		log.Printf("LoadStorjConfiguration\tStart\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+		metric = &Metric{function: "LoadStorjConfiguration"}
+		metric.start()
+		defer func() {
+			metric.end()
+			collectedMetrics = append(collectedMetrics, metric)
+		}()
 	}
 
 	var configStorj ConfigStorj
@@ -82,16 +84,6 @@ func LoadStorjConfiguration(fullFileName string) ConfigStorj {
 	fmt.Println("Upload Path\t: ", configStorj.UploadPath)
 	fmt.Println("Serialized Access Key\t: ", configStorj.SerializedAccess)
 
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-
-	if useDebug {
-		var m runtime.MemStats
-		runtime.ReadMemStats(&m)
-		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-		log.Printf("LoadStorjConfiguration\tEnd\tCurrent RAM usage: %d MiB\n\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
-	}
-
 	return configStorj
 }
 
@@ -99,11 +91,14 @@ func LoadStorjConfiguration(fullFileName string) ConfigStorj {
 // as per the restrictions provided by the user.
 func ShareAccess(access *uplink.Access, configStorj ConfigStorj) {
 
+	var metric *Metric
 	if useDebug {
-		var m runtime.MemStats
-		runtime.ReadMemStats(&m)
-		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-		log.Printf("ShareAccess\tStart\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+		metric = &Metric{function: "ShareAccess"}
+		metric.start()
+		defer func() {
+			metric.end()
+			collectedMetrics = append(collectedMetrics, metric)
+		}()
 	}
 
 	allowDownload, _ := strconv.ParseBool(configStorj.AllowDownload)
@@ -134,16 +129,6 @@ func ShareAccess(access *uplink.Access, configStorj ConfigStorj) {
 		log.Fatal("Could not serialize shared access: ", err)
 	}
 
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-
-	if useDebug {
-		var m runtime.MemStats
-		runtime.ReadMemStats(&m)
-		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-		log.Printf("ShareAccess\tEnd\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
-	}
-
 	fmt.Println("Shareable serialized access: ", serializedAccess)
 }
 
@@ -152,11 +137,14 @@ func ShareAccess(access *uplink.Access, configStorj ConfigStorj) {
 // It then reads data property from an external file.
 func ConnectToStorj(configStorj ConfigStorj, accesskey bool) (*uplink.Access, *uplink.Project) {
 
+	var metric *Metric
 	if useDebug {
-		var m runtime.MemStats
-		runtime.ReadMemStats(&m)
-		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-		log.Printf("ConnectToStorj\tStart\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+		metric = &Metric{function: "ConnectToStorj"}
+		metric.start()
+		defer func() {
+			metric.end()
+			collectedMetrics = append(collectedMetrics, metric)
+		}()
 	}
 
 	var access *uplink.Access
@@ -197,28 +185,20 @@ func ConnectToStorj(configStorj ConfigStorj, accesskey bool) (*uplink.Access, *u
 		log.Fatal(err)
 	}
 
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-
-	if useDebug {
-		var m runtime.MemStats
-		runtime.ReadMemStats(&m)
-		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-		log.Printf("ConnectToStorj\tEnd\tCurrent RAM usage: %d MiB\n\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
-	}
-
 	return access, project
 }
 
 // UploadData uploads the backup file to storj network.
 func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName string, fileReader *os.File) {
 
+	var metric *Metric
 	if useDebug {
-		start = time.Now()
-		var m runtime.MemStats
-		runtime.ReadMemStats(&m)
-		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-		log.Printf("UploadData\tStart\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
+		metric = &Metric{function: "UploadData"}
+		metric.start()
+		defer func() {
+			metric.end()
+			collectedMetrics = append(collectedMetrics, metric)
+		}()
 	}
 
 	ctx := context.Background()
@@ -279,18 +259,6 @@ func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName
 	if err = fileReader.Close(); err != nil {
 		log.Fatal(err)
 	}
-
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-
-	if useDebug {
-		var m runtime.MemStats
-		runtime.ReadMemStats(&m)
-		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-		log.Printf("UploadData\tEnd\tCurrent RAM usage: %d MiB\n", bToMb(m.HeapInuse)+bToMb(m.StackInuse))
-		fmt.Printf("File uploaded in %s with %d MiB system memory used.\n", time.Since(start), bToMb(m.Sys))
-	}
-
 }
 
 // dataProcessingAndCopy implements the approcachof uploading data/file in parts.
