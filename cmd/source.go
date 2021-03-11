@@ -21,11 +21,11 @@ type ConfigLocalFile struct {
 // LoadLocalProperty reads and parses the configuration JSON file
 // that contains a local file path
 // and returns it embedded in a configuration object.
-//****Change the function name and add print statements as per the required configurations****
+//****Change the Function name and add print statements as per the required configurations****
 func LoadLocalProperty(fullFileName string) ConfigLocalFile {
 	var metric *Metric
 	if useDebug {
-		metric = &Metric{function: "LoadLocalProperty"}
+		metric = &Metric{Function: "LoadLocalProperty"}
 		metric.start()
 		defer func() {
 			metric.end()
@@ -73,13 +73,13 @@ func LoadLocalProperty(fullFileName string) ConfigLocalFile {
 
 // ConnectToLocalDisk takes the configuration object as argument
 // and returns the reader of the source file to be uploaded.
-//****Modify the function to connect to the required source instance
+//****Modify the Function to connect to the required source instance
 //     and return the file(s) or reader of the file****
 func ConnectToLocalDisk(configLocalFile ConfigLocalFile) *os.File {
 
 	var metric *Metric
 	if useDebug {
-		metric = &Metric{function: "ConnectToLocalDisk"}
+		metric = &Metric{Function: "ConnectToLocalDisk"}
 		metric.start()
 		defer func() {
 			metric.end()

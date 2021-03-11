@@ -39,7 +39,7 @@ func LoadStorjConfiguration(fullFileName string) ConfigStorj {
 
 	var metric *Metric
 	if useDebug {
-		metric = &Metric{function: "LoadStorjConfiguration"}
+		metric = &Metric{Function: "LoadStorjConfiguration"}
 		metric.start()
 		defer func() {
 			metric.end()
@@ -93,7 +93,7 @@ func ShareAccess(access *uplink.Access, configStorj ConfigStorj) {
 
 	var metric *Metric
 	if useDebug {
-		metric = &Metric{function: "ShareAccess"}
+		metric = &Metric{Function: "ShareAccess"}
 		metric.start()
 		defer func() {
 			metric.end()
@@ -139,7 +139,7 @@ func ConnectToStorj(configStorj ConfigStorj, accesskey bool) (*uplink.Access, *u
 
 	var metric *Metric
 	if useDebug {
-		metric = &Metric{function: "ConnectToStorj"}
+		metric = &Metric{Function: "ConnectToStorj"}
 		metric.start()
 		defer func() {
 			metric.end()
@@ -193,7 +193,7 @@ func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName
 
 	var metric *Metric
 	if useDebug {
-		metric = &Metric{function: "UploadData"}
+		metric = &Metric{Function: "UploadData"}
 		metric.start()
 		defer func() {
 			metric.end()
@@ -230,7 +230,7 @@ func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName
 	dataProcessingAndCopy(upload, fileReader)
 
 	/*	In case you have passed a byte array(buffer) to be uploaded,
-		comment the Copy function block and use the following approach.
+		comment the Copy Function block and use the following approach.
 		This approach creates a reader for 32KB section starting from the current position,
 		copies the 32KB buffer data and updaes the current position.
 
@@ -262,7 +262,7 @@ func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName
 }
 
 // dataProcessingAndCopy implements the approcachof uploading data/file in parts.
-// Code to modify the data to be uploaded can be added inside this function.
+// Code to modify the data to be uploaded can be added inside this Function.
 // By default, no modification in the uploading data has been performed.
 func dataProcessingAndCopy(upload *uplink.Upload, fileReader *os.File) {
 
@@ -283,7 +283,7 @@ func dataProcessingAndCopy(upload *uplink.Upload, fileReader *os.File) {
 	}
 }
 
-/*	Uncomment this function if you are passing byte array(buffer) to the UploadData funtion.
+/*	Uncomment this Function if you are passing byte array(buffer) to the UploadData funtion.
 
 	func min(a, b int) int {
 

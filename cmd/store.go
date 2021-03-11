@@ -40,9 +40,17 @@ func localStore(cmd *cobra.Command, args []string) {
 	useAccessKey, _ := cmd.Flags().GetBool("accesskey")
 	useAccessShare, _ := cmd.Flags().GetBool("share")
 	useDebug, _ = cmd.Flags().GetBool("debug")
+	defer func() {
+		if useDebug {
+			err := saveCollectedMetrics(collectedMetrics)
+			if err != nil {
+				fmt.Printf("failed to save metrcis %s", err)
+			}
+		}
+	}()
 
 	// Read local file configuration from an external file and create a configuration object.
-	//****Change the statement as per the `source` code function****
+	//****Change the statement as per the `source` code Function****
 	configLocalFile := LoadLocalProperty(localConfigFilePath)
 
 	// Read storj network configurations from and external file and create a storj configuration object.
