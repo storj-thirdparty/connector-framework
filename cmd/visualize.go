@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
+	"html/template"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path"
 	"strings"
@@ -23,6 +25,11 @@ var visualizeCmd = &cobra.Command{
 	Long:  `Command to visualize locally stored performance metrics.`,
 	Run:   visualizeMetrics,
 }
+
+const templateSrc = `<script>
+var point = {{.}};
+alert(point);
+</script>`
 
 func init() {
 	// Setup the store command with its flags.
@@ -44,6 +51,23 @@ func visualizeMetrics(cmd *cobra.Command, args []string) {
 	}
 	fmt.Println(len(metrics))
 
+	http.HandleFunc("/", metricHandler(metrics))
+	http.ListenAndServe(":8090", nil)
+
+}
+
+func metricHandler(metrics []*visMetric) func(http.ResponseWriter, *http.Request) {
+	pj, err := json.Marshal(metrics)
+	if err != nil {
+		panic(err)
+	}
+
+	t := template.Must(template.New("").Parse(templateSrc))
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err = t.Execute(w, string(pj)); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func loadMetricsFromFolder(folder string) (results []*visMetric, err error) {
