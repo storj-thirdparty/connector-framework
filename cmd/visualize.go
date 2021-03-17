@@ -17,19 +17,15 @@ type visMetric struct {
 	RunUUID string
 }
 
-type funcAvg struct {
-	FuncName string
-	Avg      float64
-}
-
 type visPage struct {
-	HeapStartAvg  []*funcAvg
-	HeapEndAvg    []*funcAvg
-	HeapDeltaAvg  []*funcAvg
-	StackStartAvg []*funcAvg
-	EndStackAvg   []*funcAvg
-	StackDeltaAvg []*funcAvg
-	TimeSpendAvg  []*funcAvg
+	FuncNames     []string
+	HeapStartAvg  []float64
+	HeapEndAvg    []float64
+	HeapDeltaAvg  []float64
+	StackStartAvg []float64
+	EndStackAvg   []float64
+	StackDeltaAvg []float64
+	TimeSpendAvg  []float64
 }
 
 func visPageFromMetrics(metrics []*visMetric) *visPage {
@@ -54,34 +50,14 @@ func visPageFromMetrics(metrics []*visMetric) *visPage {
 	}
 	var p visPage
 	for funcName, count := range funcCounter {
-		p.HeapStartAvg = append(p.HeapStartAvg, &funcAvg{
-			FuncName: funcName,
-			Avg:      hs[funcName] / float64(count),
-		})
-		p.HeapEndAvg = append(p.HeapEndAvg, &funcAvg{
-			FuncName: funcName,
-			Avg:      he[funcName] / float64(count),
-		})
-		p.HeapDeltaAvg = append(p.HeapDeltaAvg, &funcAvg{
-			FuncName: funcName,
-			Avg:      hd[funcName] / float64(count),
-		})
-		p.StackStartAvg = append(p.StackStartAvg, &funcAvg{
-			FuncName: funcName,
-			Avg:      ss[funcName] / float64(count),
-		})
-		p.EndStackAvg = append(p.EndStackAvg, &funcAvg{
-			FuncName: funcName,
-			Avg:      se[funcName] / float64(count),
-		})
-		p.StackDeltaAvg = append(p.StackDeltaAvg, &funcAvg{
-			FuncName: funcName,
-			Avg:      sd[funcName] / float64(count),
-		})
-		p.TimeSpendAvg = append(p.TimeSpendAvg, &funcAvg{
-			FuncName: funcName,
-			Avg:      ts[funcName] / float64(count),
-		})
+		p.FuncNames = append(p.FuncNames, funcName)
+		p.HeapStartAvg = append(p.HeapStartAvg, hs[funcName]/float64(count))
+		p.HeapEndAvg = append(p.HeapEndAvg, he[funcName]/float64(count))
+		p.HeapDeltaAvg = append(p.HeapDeltaAvg, hd[funcName]/float64(count))
+		p.StackStartAvg = append(p.StackStartAvg, ss[funcName]/float64(count))
+		p.EndStackAvg = append(p.EndStackAvg, se[funcName]/float64(count))
+		p.StackDeltaAvg = append(p.StackDeltaAvg, sd[funcName]/float64(count))
+		p.TimeSpendAvg = append(p.TimeSpendAvg, (ts[funcName]/float64(count))/float64(1000000))
 
 	}
 
@@ -98,45 +74,186 @@ var visualizeCmd = &cobra.Command{
 }
 
 const templateSrc = `
-<div id="chart"></div>
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connector Framework Metrics</title>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body>
+<div>
+    <h2>Time Spent</h2>
+    <div id="chart-time"></div>
+</div>
+<div>
+    <h2>Heap</h2>
+    <div id="chart-heap"></div>
+</div>
+<div>
+    <h2>Stack</h2>
+    <div id="chart-stack"></div>
+</div>
+
 <script>
-var point = {{.}};
-alert(point);
-</script>
-<script>
-var options = {
-          series: [{
-          name: 'series1',
-          data: [31, 40, 28, 51, 42, 109, 100]
-        }, {
-          name: 'series2',
-          data: [11, 32, 45, 32, 34, 52, 41]
-        }],
-          chart: {
-          height: 350,
-          type: 'area'
+    const rawData = {{.}};
+    const metrics = JSON.parse(rawData);
+    console.log(metrics);
+
+    const optionsTime = {
+        series: [{
+            name: 'Time Spent',
+            data: metrics['TimeSpendAvg']
+        },],
+        chart: {
+            type: 'bar',
+            height: 350
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                endingShape: 'rounded'
+            },
         },
         dataLabels: {
-          enabled: false
+            enabled: false
         },
         stroke: {
-          curve: 'smooth'
+            show: true,
+            width: 2,
+            colors: ['transparent']
         },
         xaxis: {
-          type: 'datetime',
-          categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
+            categories: metrics['FuncNames'],
+        },
+        yaxis: {
+            title: {
+                text: 'ms'
+            }
+        },
+        fill: {
+            opacity: 1
         },
         tooltip: {
-          x: {
-            format: 'dd/MM/yy HH:mm'
-          },
-        },
-        };
+            y: {
+                formatter: function (val) {
+                    return val + " milliseconds"
+                }
+            }
+        }
+    };
+    const chartTime = new ApexCharts(document.getElementById("chart-time"), optionsTime);
+    chartTime.render();
 
-        var chart = new ApexCharts(document.getElementById("chart"), options);
-        chart.render();
-</script>`
+    const optionsHeap = {
+        series: [{
+            name: 'Start Heap',
+            data: metrics['HeapStartAvg']
+        }, {
+            name: 'End Heap',
+            data: metrics['HeapEndAvg']
+        }, {
+            name: 'Delta Heap',
+            data: metrics['HeapDeltaAvg']
+        }],
+        chart: {
+            type: 'bar',
+            height: 350
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                endingShape: 'rounded'
+            },
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            show: true,
+            width: 2,
+            colors: ['transparent']
+        },
+        xaxis: {
+            categories: metrics['FuncNames'],
+        },
+        yaxis: {
+            title: {
+                text: 'MB'
+            }
+        },
+        fill: {
+            opacity: 1
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val + " MB"
+                }
+            }
+        }
+    };
+    const chartHeap = new ApexCharts(document.getElementById("chart-heap"), optionsHeap);
+    chartHeap.render();
+
+    const optionsStack = {
+        series: [{
+            name: 'Start Stack',
+            data: metrics['StackStartAvg']
+        }, {
+            name: 'End Stack',
+            data: metrics['EndStackAvg']
+        }, {
+            name: 'Delta Stack',
+            data: metrics['StackDeltaAvg']
+        }],
+        chart: {
+            type: 'bar',
+            height: 350
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                endingShape: 'rounded'
+            },
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            show: true,
+            width: 2,
+            colors: ['transparent']
+        },
+        xaxis: {
+            categories: metrics['FuncNames'],
+        },
+        yaxis: {
+            title: {
+                text: 'MB'
+            }
+        },
+        fill: {
+            opacity: 1
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val + " MB"
+                }
+            }
+        }
+    };
+    const chartStack = new ApexCharts(document.getElementById("chart-stack"), optionsStack);
+    chartStack.render();
+
+</script>
+</body>
+</html>
+`
 
 func init() {
 	// Setup the store command with its flags.

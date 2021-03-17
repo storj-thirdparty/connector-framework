@@ -22,19 +22,19 @@ type Metric struct {
 }
 
 func (m *Metric) start() {
-	m.StartTime = time.Now().Unix()
+	m.StartTime = time.Now().UnixNano()
 	var ms runtime.MemStats
 	runtime.ReadMemStats(&ms)
-	m.StartHeap = ms.HeapInuse
-	m.StartStack = ms.StackInuse
+	m.StartHeap = bToMb(ms.HeapInuse)
+	m.StartStack = bToMb(ms.StackInuse)
 }
 
 func (m *Metric) end() {
-	m.EndTime = time.Now().Unix()
+	m.EndTime = time.Now().UnixNano()
 	var ms runtime.MemStats
 	runtime.ReadMemStats(&ms)
-	m.EndHeap = ms.HeapInuse
-	m.EndStack = ms.StackInuse
+	m.EndHeap = bToMb(ms.HeapInuse)
+	m.EndStack = bToMb(ms.StackInuse)
 }
 
 func saveCollectedMetrics(metrics []*Metric) error {
