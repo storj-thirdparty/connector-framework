@@ -102,7 +102,7 @@ func visualizeMetrics(cmd *cobra.Command, args []string) {
 	}
 
 	http.HandleFunc("/", metricHandler(metrics))
-	fmt.Println(fmt.Sprintf("Metrics served on http://127.0.0.1:%v", port))
+	fmt.Printf("Metrics served on http://127.0.0.1:%v", port)
 	err = http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
 	if err != nil {
 		panic(err)
