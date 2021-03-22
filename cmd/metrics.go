@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+//Metric represents basic execution metric
 type Metric struct {
 	Function   string `json:"Function"`
 	StartHeap  uint64 `json:"StartHeap"`
@@ -21,6 +22,7 @@ type Metric struct {
 	EndTime    int64  `json:"EndTime"`
 }
 
+//start marks metric as started
 func (m *Metric) start() {
 	m.StartTime = time.Now().UnixNano()
 	var ms runtime.MemStats
@@ -29,6 +31,7 @@ func (m *Metric) start() {
 	m.StartStack = bToMb(ms.StackInuse)
 }
 
+//end marks metric as finished
 func (m *Metric) end() {
 	m.EndTime = time.Now().UnixNano()
 	var ms runtime.MemStats
@@ -37,6 +40,7 @@ func (m *Metric) end() {
 	m.EndStack = bToMb(ms.StackInuse)
 }
 
+//saveCollectedMetrics dumps data to local json file
 func saveCollectedMetrics(metrics []*Metric) error {
 	if len(metrics) == 0 {
 		return nil

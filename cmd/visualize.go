@@ -112,14 +112,14 @@ func visualizeMetrics(cmd *cobra.Command, args []string) {
 
 func metricHandler(metrics []*visMetric) func(http.ResponseWriter, *http.Request) {
 	mp := visPageFromMetrics(metrics)
-	pageJson, err := json.Marshal(mp)
+	pageJSON, err := json.Marshal(mp)
 	if err != nil {
 		panic(err)
 	}
 
 	t := template.Must(template.New("").Parse(templateSrc))
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err = t.Execute(w, string(pageJson)); err != nil {
+		if err = t.Execute(w, string(pageJSON)); err != nil {
 			panic(err)
 		}
 	}
