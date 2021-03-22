@@ -1,4 +1,4 @@
-## connector-framework (uplink v1.0.5)
+## connector-framework (uplink v1.4.5)
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/253d84109b174697b8453e81d8998073)](https://app.codacy.com/gh/storj-thirdparty/connector-framework?utm_source=github.com&utm_medium=referral&utm_content=storj-thirdparty/connector-framework&utm_campaign=Badge_Grade_Dashboard)
 [![Go Report Card](https://goreportcard.com/badge/github.com/storj-thirdparty/connector-framework)](https://goreportcard.com/report/github.com/storj-thirdparty/connector-framework)
