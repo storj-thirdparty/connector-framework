@@ -44,3 +44,11 @@ $ ./connector-framework store --share
 ```
 $ ./connector-framework store --debug
 ```
+
+## Visualize metrics collected in `debug` mode
+```
+$ ./connector-framework visualize --metrics path_to_collected_metrics_folder --port http_port_for_visualization
+```
+default values:
+* `metrics = ./metrics`
+* `port = 8090`
