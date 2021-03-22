@@ -65,6 +65,7 @@ func visPageFromMetrics(metrics []*visMetric) *visPage {
 }
 
 const metricsFlag = "metrics"
+const metricsPortFlag = "port"
 
 var visualizeCmd = &cobra.Command{
 	Use:   "visualize",
@@ -80,11 +81,17 @@ func init() {
 	rootCmd.AddCommand(visualizeCmd)
 	var metricsFolder string
 	visualizeCmd.Flags().StringVarP(&metricsFolder, metricsFlag, "m", "./metrics", "path to metrics folder.")
+	visualizeCmd.Flags().Int32P(metricsPortFlag, "p", 8090, "port for metrics visualization server")
 
 }
 
 func visualizeMetrics(cmd *cobra.Command, args []string) {
 	metricsFolder, err := cmd.Flags().GetString(metricsFlag)
+
+	if err != nil {
+		panic(err)
+	}
+	port, err := cmd.Flags().GetInt32(metricsPortFlag)
 	if err != nil {
 		panic(err)
 	}
@@ -93,10 +100,13 @@ func visualizeMetrics(cmd *cobra.Command, args []string) {
 		fmt.Printf("failed to load metrics from %s : %s", metricsFolder, err)
 		return
 	}
-	fmt.Println(len(metrics))
 
 	http.HandleFunc("/", metricHandler(metrics))
-	http.ListenAndServe(":8090", nil)
+	fmt.Println(fmt.Sprintf("Metrics served on http://127.0.0.1:%v", port))
+	err = http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
+	if err != nil {
+		panic(err)
+	}
 
 }
 

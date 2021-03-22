@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"time"
-
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +28,6 @@ func init() {
 
 var useDebug bool
 var collectedMetrics []*Metric
-var start time.Time
 
 func localStore(cmd *cobra.Command, args []string) {
 
