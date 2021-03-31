@@ -39,6 +39,20 @@ $ ./connector-framework store --accesskey
 $ ./connector-framework store --share
 ```
 
+## Run with pprof
+```
+$ ./connector-framework store --profile [one of: cpu, memory, block, goroutine]
+```
+It will produce *.pprof files in `./profile` folder. You can use generated pprof files to explore and visualize code
+performance. Please refer to [official](https://github.com/google/pprof) docs.
+
+Sample usage:
+
+(requires [GraphViz](https://graphviz.org/))
+```
+$ go tool pprof -http=":8081" connector-framework.exe ./profile/cpu.pprof 
+```
+
 ## Upload back-up data to storj in debug mode
 
 ```
