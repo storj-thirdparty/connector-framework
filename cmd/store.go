@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/pkg/profile"
 	"github.com/spf13/cobra"
 )
 
@@ -19,9 +20,11 @@ func init() {
 	rootCmd.AddCommand(storeCmd)
 	var defaultLocalFile string //****Change the variable name to store the default configuration file location****
 	var defaultStorjFile string
+	var prof string
 	storeCmd.Flags().BoolP("accesskey", "a", false, "Connect to storj using access key(default connection method is by using API Key).")
 	storeCmd.Flags().BoolP("share", "s", false, "For generating share access of the uploaded backup file.")
-	storeCmd.Flags().BoolP("debug", "d", false, "For code instrumentation and profiling.")
+	storeCmd.Flags().BoolP("debug", "d", false, "Collect simple code stat: time & memory alloc & stack")
+	storeCmd.Flags().StringVarP(&prof, "profile", "p", "", "Enable pprof. pprof is disabled by default. Options: `cpu`, `memory`, `block`, `goroutine`")
 	storeCmd.Flags().StringVarP(&defaultLocalFile, "local", "l", "././config/local.json", "full filepath contaning local file path.") //****Change the flag name and its description****
 	storeCmd.Flags().StringVarP(&defaultStorjFile, "storj", "u", "././config/storj_config.json", "full filepath contaning Storj V3 configuration.")
 }
@@ -34,9 +37,27 @@ func localStore(cmd *cobra.Command, args []string) {
 	// Process arguments from the CLI.
 	localConfigFilePath, _ := cmd.Flags().GetString("local") //****Change the command argument here****
 	fullFileNameStorj, _ := cmd.Flags().GetString("storj")
+	profiling, _ := cmd.Flags().GetString("profile")
 	useAccessKey, _ := cmd.Flags().GetBool("accesskey")
 	useAccessShare, _ := cmd.Flags().GetBool("share")
 	useDebug, _ = cmd.Flags().GetBool("debug")
+
+	if profiling == "cpu" {
+		defer profile.Start(profile.CPUProfile, profile.ProfilePath("./profile")).Stop()
+	}
+
+	if profiling == "memory" {
+		defer profile.Start(profile.MemProfile, profile.ProfilePath("./profile")).Stop()
+	}
+
+	if profiling == "block" {
+		defer profile.Start(profile.BlockProfile, profile.ProfilePath("./profile")).Stop()
+	}
+
+	if profiling == "goroutine" {
+		defer profile.Start(profile.GoroutineProfile, profile.ProfilePath("./profile")).Stop()
+	}
+
 	defer func() {
 		if useDebug {
 			err := saveCollectedMetrics(collectedMetrics)
